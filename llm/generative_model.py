@@ -1,10 +1,10 @@
+from langchain_google_genai import ChatGoogleGenerativeAI
 import os
-import google.generativeai as genai
+from langsmith import Client, traceable
 from dotenv import load_dotenv
-
 load_dotenv()
 
-
+os.environ["LANGSMITH_TRACING"] = "true"
 instructions = """"
 You are an authoritative legal research assistant integrated into our case study platform. Your purpose is to help users understand legal cases and proceedings through clear, accurate explanations.
 
@@ -60,39 +60,34 @@ b) Meta Questions:
 
 
 Remember: You represent the case study platform itself. Each response should feel like an integrated part of the legal documentation system, combining authority with accessibility.
-
-
 """
-def get_completion():
-    try:
-        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-        # Create the model
-        generation_config = {
-        "temperature": 0.2,
-        "top_p": 0.95,
-        "top_k": 40,
-        "max_output_tokens": 8000,
-        "response_mime_type": "text/plain",
-        }
-        model = genai.GenerativeModel(
-        model_name="gemini-2.0-flash-exp",
-        generation_config=generation_config,
-        # system_instruction="""
-        #     You are a helpful assistant That helps users to answer question on a legal document. You are provided with a question and a case. 
-        #     Your goal is to Understand what user is asking and provide answer using the case provided.
-        #     please mindfully read the cotext and plan your concise and informative response.
-        #     if the case does not contain information please say 'Information is not present in this case'
-        #     Please take your time to read case and generate answers and think step by step
-        #     Please respond only in markdown format. And provide page number as citation reference like this **[page 1]** 
-        #     """,
-        system_instruction= instructions,
-        )
-        chat_session = model.start_chat(
-        history=[]
-        )
 
-        return chat_session
-    except Exception as e:
-        print(f"An error occurred in generative_model.py : {str(e)}")
+
+custom_client = Client(api_key=os.environ["LANGSMITH_API_KEY"])
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.0-flash-exp",
+    temperature=0.2,
+)
+
+@traceable(client=custom_client,
+  run_type="llm",
+  name="AI-CASE",
+  project_name="Fiverr"
+)
+def get_completion(prompt):
+  try:
+    messages = [
+    (
+        "system",
+        instructions,
+    ),
+    ("human", prompt),
+    ]
+    ai_msg = llm.invoke(messages)
+    return ai_msg.content, ai_msg.usage_metadata
+
+  except Exception as e:
+      print(f"An error occurred in generative_model.py : {str(e)}")
 
 

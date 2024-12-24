@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Interface</title>
+    <style>
+        .chat-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .chat-history {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+        }
+        .bot-message {
+            background-color: #f5f5f5;
+            margin-right: 20%;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            padding: 8px;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-history" id="chatHistory">
+            <!-- Chat messages will appear here -->
+        </div>
+        
+        <form id="chatForm" onsubmit="sendMessage(event)">
+            <div class="form-group">
+                <label for="index_name">Index Name:</label>
+                <input type="text" name="index_name" id="index_name" required>
+            </div>
+            <div class="form-group">
+                <label for="user_input">Message:</label>
+                <textarea name="user_input" id="user_input" required rows="4"></textarea>
+            </div>
+            <button type="submit">Send</button>
+        </form>
+        <div id="error" class="error"></div>
+    </div>
+
+    <script>
+        function addMessage(message, isUser) {
+            const chatHistory = document.getElementById('chatHistory');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        async function sendMessage(event) {
+            event.preventDefault();
+            const form = event.target;
+            const errorDiv = document.getElementById('error');
+            const submitButton = form.querySelector('button');
+            
+            try {
+                // Disable the submit button while processing
+                submitButton.disabled = true;
+                
+                const formData = new FormData(form);
+                const indexName = formData.get('index_name');
+                const userInput = formData.get('user_input');
+
+                // Add user message to chat
+                addMessage(userInput, true);
+
+                // Prepare the request data
+                const data = {
+                    index_name: indexName,
+                    user_input: userInput
+                };
+
+                // Send the request
+                const response = await fetch('chat_bot.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    // Add bot response to chat
+                    addMessage(result.data.response, false);
+                    // Clear the message input (keep the index name)
+                    document.getElementById('user_input').value = '';
+                    errorDiv.textContent = '';
+                } else {
+                    throw new Error(result.message || 'An error occurred');
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message;
+            } finally {
+                // Re-enable the submit button
+                submitButton.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html> 

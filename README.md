@@ -1,7 +1,7 @@
 To run this code, use the following terminal command:
 
 ```sh
-git clone https://github.com/xnileshtiwari/potential-broccoli.git
+git clone http://github.com/xnileshtiwari/refractored_llm.git
 ```
 ```sh
 python -m venv myenv
@@ -25,7 +25,7 @@ New-Item -ItemType File -Path "test/__init__.py"
 ```
 
 ```sh
-$env:PYTHONPATH = "C:\xampp\htdocs\ai-case"
+$env:PYTHONPATH = "C:\xampp\htdocs\ai-case" <- Root file path
 python -m test.main_chat
 ```
 # File Structure:
@@ -106,5 +106,23 @@ graph TD
         S -->  H[(MySQL DB)]
     end
 
+```
+# Document processing
+``` sh
+$env:PYTHONPATH = "C:\xampp\htdocs\ai-case" <- Root file path
+cd api
+fastapi dev .\main.py
+```
+## Open the localhost in browser
+![Screenshot](upload_image.png)
 
+# Chat
+
+``` sh
+$env:PYTHONPATH = "C:\xampp\htdocs\ai-case" <- Root file path
+cd api 
+fastapi dev .\main.py
+```
+## Use the index name provided at the time of pdf processing
+![Screenshot](image.png)
 

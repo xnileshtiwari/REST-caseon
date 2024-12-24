@@ -21,8 +21,6 @@ start_time = time.time()
 
 def document_chunking_and_uploading_to_vectorstore(filepath):
     try:
-        if "GOOGLE_API_KEY" not in os.environ:
-            os.environ["GOOGLE_API_KEY"] = getpass.getpass("Enter your Google AI API key: ")
 
         id1 = pdf_identifier.generate_id(filepath) # generate unique id
 
@@ -30,7 +28,7 @@ def document_chunking_and_uploading_to_vectorstore(filepath):
 
         add_one_to_column(id1)
 
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=os.environ["GOOGLE_API_KEY"])
 
         pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"]) # get api key
         index = pc.Index(id1) # get index
@@ -54,12 +52,6 @@ def document_chunking_and_uploading_to_vectorstore(filepath):
 
         docs = asyncio.run(load_pages(loader))
         
-        # Create a markdown file with page numbers
-        with open("legal_output.md", "w", encoding="utf-8") as f:
-            for doc in docs:
-                f.write(f"--- Page {doc.metadata['page']} ---\n")
-                f.write(doc.page_content + "\n\n")
-
         # Configure text splitter to preserve metadata during splitting
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=512,
@@ -79,11 +71,11 @@ def document_chunking_and_uploading_to_vectorstore(filepath):
         
         # Print some statistics
         print(f"Processed {len(docs)} pages into {len(all_splits)} chunks")
-        return "Parsing + chunking + vector database Indexing complete with page metadata"
+        return f"This PDF ID is: {id1}"
     except Exception as e:
-        print(f"An error occurred in document_chunking_and_uploading_to_vectorstore: {str(e)}")
+        print(f"An error occurred: {str(e)}")
 
 
 
-# new_file = document_chunking_and_uploading_to_vectorstore(filepath="base_files/scr_1973_1_608_667_e (1).pdf")
+# new_file = document_chunking_and_uploading_to_vectorstore(filepath="SC538.pdf")
 # print(new_file)

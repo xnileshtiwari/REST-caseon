@@ -2,7 +2,6 @@ import os
 from pinecone import Pinecone
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from pydantic import BaseModel
-from DASHBOARD.one_adder import increment_column_for_today
 from typing import List, Dict, Tuple
 from dotenv import load_dotenv
 
@@ -16,7 +15,7 @@ class QueryResult(BaseModel):
     metadata: Dict
     score: float
 
-def pincone_vector_database_query(query: str, index_name: str) -> Tuple[List[str], List[Dict]]:
+def pincone_vector_database_query(query: str, index_name: str):
     try:
         """
         Query the Pinecone vector database and return results with full metadata
@@ -28,13 +27,13 @@ def pincone_vector_database_query(query: str, index_name: str) -> Tuple[List[str
         Returns:
             Tuple[List[str], List[Dict]]: Returns (texts, metadata_list)
         """
+
         # Initialize embeddings and Pinecone
         embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=os.getenv("GOOGLE_API_KEY"))
         pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
         index = pc.Index(index_name)
         
         # Update trending count
-        increment_column_for_today(index_name)
         
         # Get query embedding
         query_embedding = embeddings.embed_query(query)
@@ -68,7 +67,3 @@ def pincone_vector_database_query(query: str, index_name: str) -> Tuple[List[str
     except Exception as e:
         print(f"An error occurred in pinecone vector database query: {e}")
     
-
-
-
-
