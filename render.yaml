@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: rag-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn rag:app
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: ENVIRONMENT
+        value: production
