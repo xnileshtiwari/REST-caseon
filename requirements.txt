@@ -11,4 +11,3 @@ langchain-text-splitters
 pypdf
 gunicorn
 waitress
-Procfile rag.py
