@@ -1,0 +1,30 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "ai-case-nileshtiwari6388261059-cc65.l.aivencloud.com",
+            "port": 10849,
+            "driver": "MySQL",
+            "name": "aiven-sql",
+            "database": "defaultdb",
+            "username": "avnadmin"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "193.203.184.114",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "caseon ai",
+            "database": "http://auth-db1554.hstgr.io",
+            "username": "u563806719_caseai"
+        }
+    ]
+}

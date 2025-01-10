@@ -25,104 +25,86 @@ New-Item -ItemType File -Path "test/__init__.py"
 ```
 
 ```sh
-$env:PYTHONPATH = "C:\xampp\htdocs\ai-case" <- Root file path
-python -m test.main_chat
-```
-# File Structure:
-```sh
-├── __pycache__/
-├── .venv/
-├── .vscode/
-├── DASHBOARD/
-│   ├── add_one_column.py "(Adds a new column to the cat_is_trending table)"
-│   ├── one_adder.py "(Increments +1 per Query)"
-│   ├── token_cost_calculator.py "(Calculates token cost)"
-│   └── trend_on_date.py "(Get trending analysis for a specific date)"
-├── Database/
-│   ├── connection.py "(MYSQL database connection)"
-│   ├── pdf_metadata.json "(PDF metadata)"
-│   ├── token_usage_database_update.py "(Update or insert token usage for the current date)"
-│   └── unique_id_generator.py "(Generates unique ID for PDF)"
-├── Document_processing/
-│   └── document_processing.py "(Document chunking, parsing and uploading to vectorstore)"
-├── extras/
-│   └── token_reset.py "(Reset token usage for a specific date)"
-├── Ilm/
-│   ├── generative_model.py "(Generates response)"
-│   └── prompt.py "(Prepare prompt)"
-├── pinecone_vector_database/
-│   ├── index_creator.py "(Creates Pinecone index)"
-│   └── query.py "(Query Pinecone index)"
-├── test/
-│   ├── main_chat.py "(Generates response)"
-│   └── main.py
-├── .env "(Environment variables)"
-├── pdf_metadata.json
-└── requirements.txt "(Dependencies)"
-
+$env:PYTHONPATH = "C:\xampp\htdocs\ai-case"
 ```
 
 
 
 
-## Process Flow
-```mermaid
-graph TD
-    subgraph Input
-        A[PDF Document] --> B[Document Processing]
-        E[User Query] --> F[Chat Interface]
-    end
-
-    subgraph Document_Processing
-        B --> C[Document Chunking]
-        C --> D[Parse & Extract]
-    end
-
-    subgraph Database
-        D --> I[Generate Unique ID]
-    end
-
-    subgraph Vectorstore
-        D --> J[Create Pinecone Index]
-        J --> K[(Pinecone DB)]
-    end
-
-    subgraph Response_Generation
-        F --> L[Query Processing]
-        L --> M[Vector Search]
-        K --> M
-        M --> N[Generate Response]
-        N --> O[Token Calculation]
-
-    end
-
-    subgraph Output
-        
-            
-        O --> P[Format Response]
-        P --> Q[User Interface]
-        Q --> R[Display to User]
-        O --> S[Update Usage Stats]
-        S -->  H[(MySQL DB)]
-    end
-
-```
 # Document processing
 ``` sh
-$env:PYTHONPATH = "C:\xampp\htdocs\ai-case" <- Root file path
-cd api
-fastapi dev .\main.py
+$env:PYTHONPATH = "C:\xampp\htdocs\ai-case" <- Root 
 ```
-## Open the localhost in browser
-![Screenshot](upload_image.png)
 
-# Chat
+
+# API usage 
+
+## Document processing => upload.py
 
 ``` sh
-$env:PYTHONPATH = "C:\xampp\htdocs\ai-case" <- Root file path
-cd api 
-fastapi dev .\main.py
+python .\upload.py
 ```
-## Use the index name provided at the time of pdf processing
-![Screenshot](image.png)
 
+Method: POST
+http://127.0.0.1:5000/process-document
+
+```json
+
+{
+    "unique_id": "sample2.pdf",
+    "link": "https://pdfobject.com/pdf/sample.pdf"
+}
+
+```
+
+x-api-key = 123
+
+
+
+## Chat => test/cat.py
+
+``` sh
+python .\test\cat.py
+```   
+
+Method: POST 
+http://127.0.0.1:5001/chat
+
+```json
+{
+    "index_name": "sample2.pdf",
+    "user_input": "What is the summary of this document?"
+}
+```
+
+x-api-key = 1234
+
+
+
+# Create a directory for local packages
+mkdir -p ~/packages
+cd ~/packages
+
+# Create requirements.txt with core packages first
+cat > requirements.txt << EOL
+langchain-community
+langchain-core
+langchain-google-genai
+langchain-pinecone
+langchain-text-splitters
+langserve
+langsmith
+pymysql
+flask
+langchain-text-splitters
+pypdf
+gunicorn
+waitress
+# Install packages locally
+pip3 install --user -r requirements.txt
+
+# Set PYTHONPATH to include local packages
+export PYTHONPATH=$HOME/packages:$PYTHONPATH
+
+# Test installation
+python3 -c "import flask; print(flask.__version__)"
