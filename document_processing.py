@@ -8,21 +8,17 @@ import asyncio
 from add_one_column import add_one_to_column
 from index_creator import create_index
 from dotenv import load_dotenv
-import requests
 import streamlit as st
+from load_pdf_with_link import download_pdf
 
 load_dotenv()
 
 
 
 
-def document_chunking_and_uploading_to_vectorstore(filepath, name_space):
+def document_chunking_and_uploading_to_vectorstore(link, name_space):
     try:
-        response = requests.get(filepath)  # Send a GET request
-        response.raise_for_status()  # Ensure the request was successful
-        with open("sample.pdf", "wb") as file:
-            file.write(response.content)
-
+        filename = download_pdf(link)
         index_name_from_env = os.environ["INDEX_NAME"] # get index name
 
 
@@ -80,6 +76,7 @@ def document_chunking_and_uploading_to_vectorstore(filepath, name_space):
         return f"This PDF ID is: {name_space}"
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+
 
 
 
