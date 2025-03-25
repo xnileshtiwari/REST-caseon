@@ -17,17 +17,28 @@ api_keys_str = os.environ.get("API_KEYS", "")
 VALID_API_KEYS = set(filter(None, api_keys_str.split(",")))
 logger.info(f"Loaded {len(VALID_API_KEYS)} API keys from environment.")
 
+import os
+import logging
+
+logger = logging.getLogger(__name__)
+api_keys_str = os.environ.get("API_KEYS", "")
+VALID_API_KEYS = set(key.strip() for key in filter(None, api_keys_str.split(",")))
+logger.info(f"Loaded API keys: {VALID_API_KEYS}")
+
 def require_api_key(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        api_key = request.headers.get("x-api-key")
+        api_key = request.headers.get("x-api-key", "").strip()
+        logger.info(f"Received API key: {api_key}")
         if api_key not in VALID_API_KEYS:
-            logging.warning("Unauthorized access attempt.")
+            logger.warning("Unauthorized access attempt.")
             return jsonify({"error": "Unauthorized"}), 401
         return f(*args, **kwargs)
     return decorated_function
-
 # Error Handlers
+
+
+
 @app.errorhandler(404)
 def not_found_error(error):
     return jsonify({"error": "Resource not found"}), 404
