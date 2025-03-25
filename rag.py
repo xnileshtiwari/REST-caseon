@@ -11,8 +11,11 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Load valid API keys (store in an environment variable for security)
-VALID_API_KEYS = {"123", "456", "1234"}  # Combine all valid keys
+# Load valid API keys from the API_KEYS environment variable
+# Expected format: a comma-separated string, e.g., "key1,key2,key3"
+api_keys_str = os.environ.get("API_KEYS", "")
+VALID_API_KEYS = set(filter(None, api_keys_str.split(",")))
+logger.info(f"Loaded {len(VALID_API_KEYS)} API keys from environment.")
 
 def require_api_key(f):
     @wraps(f)
@@ -121,6 +124,7 @@ if __name__ == "__main__":
     
     if os.environ.get("ENVIRONMENT") == "production":
         # Production: use waitress
+        from waitress import serve
         serve(app, host="0.0.0.0", port=port)
     else:
         # Development: use Flask's built-in server
